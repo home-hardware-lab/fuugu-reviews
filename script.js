@@ -1,60 +1,58 @@
 document.addEventListener("DOMContentLoaded", function () {
-  const progressBar = document.getElementById("reading-progress");
+  const meter = document.getElementById("cr-scroll-meter");
   window.addEventListener("scroll", function () {
-    const scrollTop = window.scrollY || document.documentElement.scrollTop;
-    const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-    if (docHeight > 0 && progressBar) {
-      const scrolled = (scrollTop / docHeight) * 100;
-      progressBar.style.width = scrolled.toFixed(1) + "%";
+    const top = window.scrollY || document.documentElement.scrollTop;
+    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    if (height > 0 && meter) {
+      meter.style.width = ((top / height) * 100).toFixed(1) + "%";
     }
   });
 
-  const toiletsSelect = document.getElementById("calc-toilets");
-  const hardnessSelect = document.getElementById("calc-hardness");
-  const outputBox = document.getElementById("calc-output");
+  const bowlsInput = document.getElementById("cr-input-bowls");
+  const scaleInput = document.getElementById("cr-input-scale");
+  const displayBox = document.getElementById("cr-estimator-display");
 
-  function updateCalculator() {
-    if (!toiletsSelect || !hardnessSelect || !outputBox) return;
+  function runEstimator() {
+    if (!bowlsInput || !scaleInput || !displayBox) return;
 
-    const toilets = parseInt(toiletsSelect.value, 10) || 1;
-    const hardness = hardnessSelect.value;
+    const bowls = parseInt(bowlsInput.value, 10) || 1;
+    const mode = scaleInput.value;
 
-    let extraInitialPouches = 0;
-    let tipText = "Standard weekly maintenance (1 pouch per toilet per week).";
+    let extraPouches = 0;
+    let note = "Standard weekly schedule (1 pouch per toilet bowl per week).";
 
-    if (hardness === "hard") {
-      extraInitialPouches = 1 * toilets;
-      tipText = "Includes 1 extra initial descaling pouch per bowl in Week 1 for hard-water calcium rings.";
-    } else if (hardness === "rust") {
-      extraInitialPouches = 2 * toilets;
-      tipText = "Includes 2 extra initial shock pouches per bowl in Week 1 for deep well-water rust/scale (use the 105°F warm-water pre-pour trick).";
+    if (mode === "hard") {
+      extraPouches = 1 * bowls;
+      note = "Adds 1 initial descaling pouch per bowl in Week 1 for hard-water calcium rings.";
+    } else if (mode === "rust") {
+      extraPouches = 2 * bowls;
+      note = "Adds 2 initial shock pouches per bowl in Week 1 for deep well-water rust (use the 105°F warm-water pre-pour trick).";
     }
 
-    const monthlyPouches = toilets * 4 + extraInitialPouches;
-    const boxesNeeded = Math.ceil(monthlyPouches / 2);
-    const singleBoxCost = (boxesNeeded * 17.95).toFixed(2);
-    const bundleCostPerPouch = 2.69;
-    const estimatedBundleTotal = (monthlyPouches * bundleCostPerPouch).toFixed(2);
+    const totalPouches = bowls * 4 + extraPouches;
+    const totalBoxes = Math.ceil(totalPouches / 2);
+    const retailCost = (totalBoxes * 17.95).toFixed(2);
+    const bundleEstimate = (totalPouches * 2.69).toFixed(2);
 
-    outputBox.innerHTML =
-      "<strong>Recommended 30-Day Supply:</strong> <strong>" +
-      monthlyPouches +
+    displayBox.innerHTML =
+      "<strong>Calculated 30-Day Requirement:</strong> <strong>" +
+      totalPouches +
       " pouches (" +
-      boxesNeeded +
+      totalBoxes +
       " Boxes)</strong>.<br />" +
-      "<span>&bull; <em>Why:</em> " +
-      tipText +
+      "<span>&bull; <em>Protocol:</em> " +
+      note +
       "</span><br />" +
-      "<span>&bull; <em>Cost Comparison:</em> Buying single boxes separately costs <strong>$" +
-      singleBoxCost +
-      "</strong> ($8.98/clean) vs. roughly <strong>$" +
-      estimatedBundleTotal +
-      "</strong> (~$2.69/clean) with the official multi-box bundle discount.</span>";
+      "<span>&bull; <em>Price Audit:</em> Ordering single boxes separately costs <strong>$" +
+      retailCost +
+      "</strong> ($8.98/clean) compared to roughly <strong>$" +
+      bundleEstimate +
+      "</strong> (~$2.69/clean) with the multi-box bundle discount.</span>";
   }
 
-  if (toiletsSelect && hardnessSelect) {
-    toiletsSelect.addEventListener("change", updateCalculator);
-    hardnessSelect.addEventListener("change", updateCalculator);
-    updateCalculator();
+  if (bowlsInput && scaleInput) {
+    bowlsInput.addEventListener("change", runEstimator);
+    scaleInput.addEventListener("change", runEstimator);
+    runEstimator();
   }
 });
