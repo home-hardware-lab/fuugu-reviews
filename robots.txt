@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://home-hardware-lab.github.io/fuugu-reviews/sitemap.xml
